@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exact Bytes — PDF Compressor</title>
+
+  <!-- Bootstrap 5 from CDN (no install needed) -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+
+  <!-- Our small custom stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+
+  <!-- ── Top navigation bar ── -->
+  <nav class="navbar navbar-dark bg-dark px-4">
+    <span class="navbar-brand fw-bold fs-5">⚡ Exact Bytes</span>
+    <span class="text-secondary small">PDF Compressor</span>
+  </nav>
+
+  <!-- ── Main content ── -->
+  <main class="container my-5">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-8 col-lg-6">
+
+        <!-- Card wrapper -->
+        <div class="card shadow-sm">
+          <div class="card-body p-4">
+
+            <h1 class="card-title h4 mb-1">Compress a PDF</h1>
+            <p class="text-muted small mb-4">
+              Upload a PDF and set the size range you want. We'll compress it
+              to fit.
+            </p>
+
+            {% if error %}
+              <div class="alert alert-danger" role="alert">
+                {{ error }}
+              </div>
+            {% endif %}
+
+            <!--
+              action="/compress"  → where the form data is sent (POST /compress)
+              method="post"       → use HTTP POST so the file travels in the body
+              enctype="..."       → required whenever a form uploads a file
+            -->
+            <form action="/compress" method="post" enctype="multipart/form-data">
+
+              <!-- ── PDF file picker ── -->
+              <div class="mb-3">
+                <label for="pdf_file" class="form-label fw-semibold">
+                  PDF File
+                </label>
+                <input
+                  type="file"
+                  id="pdf_file"
+                  name="pdf_file"
+                  accept=".pdf"
+                  class="form-control"
+                  required
+                />
+                <div class="form-text">Only .pdf files are accepted.</div>
+              </div>
+
+              <!-- ── Size unit selector ── -->
+              <div class="mb-3">
+                <label for="unit" class="form-label fw-semibold">Unit</label>
+                <select id="unit" name="unit" class="form-select">
+                  <option value="KB" {% if values.get('unit', 'KB') == 'KB' %}selected{% endif %}>KB — kilobytes</option>
+                  <option value="MB" {% if values.get('unit') == 'MB' %}selected{% endif %}>MB — megabytes</option>
+                </select>
+              </div>
+
+              <!-- ── Min / Max size fields (side by side on wider screens) ── -->
+              <div class="row g-3 mb-4">
+                <div class="col-6">
+                  <label for="min_size" class="form-label fw-semibold">
+                    Minimum size
+                  </label>
+                  <input
+                    type="number"
+                    id="min_size"
+                    name="min_size"
+                    class="form-control"
+                    placeholder="e.g. 100"
+                    min="0.01"
+                    step="any"
+                    value="{{ values.get('min_size', '') }}"
+                    required
+                  />
+                </div>
+                <div class="col-6">
+                  <label for="max_size" class="form-label fw-semibold">
+                    Maximum size
+                  </label>
+                  <input
+                    type="number"
+                    id="max_size"
+                    name="max_size"
+                    class="form-control"
+                    placeholder="e.g. 500"
+                    min="0.01"
+                    step="any"
+                    value="{{ values.get('max_size', '') }}"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="form-check compression-consent mb-4">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  value="yes"
+                  id="allow_flatten"
+                  name="allow_flatten"
+                  {% if values.get('allow_flatten') == 'yes' %}checked{% endif %}
+                />
+                <label class="form-check-label small" for="allow_flatten">
+                  Allow stronger image-based compression if lossless compression
+                  is not enough. I understand this creates a flattened PDF and
+                  may remove selectable text, links, forms, signatures,
+                  bookmarks, attachments, and accessibility data.
+                </label>
+              </div>
+
+              <!-- ── Submit button ── -->
+              <div class="d-grid">
+                <button type="submit" class="btn btn-dark btn-lg">
+                  Compress PDF
+                </button>
+              </div>
+
+              <p class="privacy-note text-muted small text-center mt-3 mb-0">
+                Your file is processed in memory and is never stored.
+              </p>
+
+            </form>
+          </div><!-- /card-body -->
+        </div><!-- /card -->
+
+      </div><!-- /col -->
+    </div><!-- /row -->
+  </main>
+
+  <!-- ── Footer ── -->
+  <footer class="text-center text-muted small py-4">
+    Exact Bytes · College MVP · No files are stored on our server
+  </footer>
+
+  <!-- Bootstrap JS bundle (includes Popper) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
